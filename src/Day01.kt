@@ -1,17 +1,29 @@
 fun main() {
-    fun part1(input: List<String>): Int {
-        return input.size
+    val input = readInts("Day01")
+    var max = 0
+    var curMax = 0
+    input.forEach {
+        if (it.isNotEmpty()) {
+            curMax += it[0]
+        } else {
+            if (curMax > max) {
+                max = curMax
+            }
+            curMax = 0
+        }
     }
+    println(max)
 
-    fun part2(input: List<String>): Int {
-        return input.size
+    curMax = 0
+    val elves = buildList<Int> {
+        input.forEach {
+            if (it.isNotEmpty()) {
+                curMax += it[0]
+            } else {
+                add(curMax)
+                curMax = 0
+            }
+        }
     }
-
-    // test if implementation meets criteria from the description, like:
-    val testInput = readInput("Day01_test")
-    check(part1(testInput) == 1)
-
-    val input = readInput("Day01")
-    println(part1(input))
-    println(part2(input))
+    println(elves.sortedDescending().subList(0,3).sum())
 }
