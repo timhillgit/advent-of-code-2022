@@ -1,49 +1,55 @@
+import kotlin.math.absoluteValue
+import kotlin.math.sign
+
+/**
+ * Rock, Paper, Scissors: extendable to any odd number
+ */
+enum class Throw {
+    A, B, C; // Rock, Paper, Scissors
+
+    val value = ordinal + 1
+
+    /**
+     * This is similar to `compareTo`: Returns zero if this Throw
+     * draws the other Throw, a negative number if it loses, or a
+     * positive number if it wins.
+     */
+    fun beats(other: Throw): Int {
+        val difference = ordinal - other.ordinal
+        return if (difference.absoluteValue > Throw.values().size / 2) {
+            difference - difference.sign * Throw.values().size
+        } else {
+            difference
+        }
+    }
+
+    fun score(other: Throw) = value + 3 * (1 + beats(other).sign)
+
+    /**
+     *  In any well-formed Rock, Paper, Scissors, there will *always*
+     * be another throw that wins, loses, and draws. So the !! is
+     * excusable in this case.
+     */
+    fun fromOutcome(outcome: Int) = values().findLast {
+        it.beats(this).sign == outcome.sign
+    }!!
+}
+
 fun main() {
-    val scores = mapOf(
-        "X" to 1,
-        "Y" to 2,
-        "Z" to 3,
-    )
-    val outcomes = mapOf(
-        "X" to mapOf(
-            "A" to 3,
-            "B" to 0,
-            "C" to 6,
-        ),
-        "Y" to mapOf(
-            "A" to 6,
-            "B" to 3,
-            "C" to 0,
-        ),
-        "Z" to mapOf(
-            "A" to 0,
-            "B" to 6,
-            "C" to 3,
-        ),
-    )
+    val strategyGuide = readInput("Day02").map { it.split(" ") }
 
-    println(readInput("Day02").map { it.split(" ")}.sumOf { (them, us) -> scores[us]!! + outcomes[us]!![them]!! })
+    val partOneKey = mapOf("X" to Throw.A, "Y" to Throw.B, "Z" to Throw.C)
+    println(strategyGuide.sumOf { (them, us) ->
+        val ourThrow = partOneKey[us]!! // If it doesn't exist, strategy guide is malformed
+        val theirThrow = Throw.valueOf(them)
+        ourThrow.score(theirThrow)
+    })
 
-    val reverseOutcomes = mapOf(
-        "A" to mapOf(
-            "X" to "Z",
-            "Y" to "X",
-            "Z" to "Y",
-        ),
-        "B" to mapOf(
-            "X" to "X",
-            "Y" to "Y",
-            "Z" to "Z",
-        ),
-        "C" to mapOf(
-            "X" to "Y",
-            "Y" to "Z",
-            "Z" to "X",
-        ),
-    )
-
-    println(readInput("Day02").map { it.split(" ")}.sumOf { (them, us) ->
-        val pick = reverseOutcomes[them]!![us]!!
-        scores[pick]!! + outcomes[pick]!![them]!!
+    val partTwoKey = mapOf("X" to -1, "Y" to 0, "Z" to 1)
+    println(strategyGuide.sumOf { (them, us) ->
+        val outcome = partTwoKey[us]!! // If it doesn't exist, strategy guide is malformed
+        val theirThrow = Throw.valueOf(them)
+        val ourThrow = theirThrow.fromOutcome(outcome)
+        ourThrow.score(theirThrow)
     })
 }
