@@ -49,3 +49,13 @@ fun <T> Iterable<T>.split(
 fun isNull(any: Any?) = any == null
 
 fun <T> Iterable<T?>.splitOnNull() = split(::isNull).map(List<T?>::filterNotNull)
+
+fun <T> intersection(sets: Iterable<Set<T>>): Set<T> =
+    sets.reduce { accumulator, element ->
+        accumulator.intersect(element)
+    }
+
+fun <T> union(sets: Iterable<Set<T>>): Set<T> =
+    sets.reduce { accumulator, element ->
+        accumulator.union(element)
+    }
