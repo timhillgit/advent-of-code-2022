@@ -35,27 +35,3 @@ fun readAllInts(name: String) = readInput(name)
             .map { match -> match.value.toInt() }
             .toList()
     }
-
-fun <T> Iterable<T>.split(
-    predicate: (T) -> Boolean
-): List<List<T>> = fold(listOf(listOf())) { result, element ->
-    if (predicate(element)) {
-        result + listOf(listOf())
-    } else {
-        result.dropLast(1) + listOf(result.last() + element)
-    }
-}
-
-fun isNull(any: Any?) = any == null
-
-fun <T> Iterable<T?>.splitOnNull() = split(::isNull).map(List<T?>::filterNotNull)
-
-fun <T> intersection(sets: Iterable<Set<T>>): Set<T> =
-    sets.reduce { accumulator, element ->
-        accumulator.intersect(element)
-    }
-
-fun <T> union(sets: Iterable<Set<T>>): Set<T> =
-    sets.reduce { accumulator, element ->
-        accumulator.union(element)
-    }

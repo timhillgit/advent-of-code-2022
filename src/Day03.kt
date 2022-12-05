@@ -1,9 +1,17 @@
-val Char.priority: Int
+private val Char.priority: Int
     get() = if (isLowerCase()) {
         minus('a') + 1
     } else {
         minus('A') + 27
     }
+
+fun <T> Iterable<Set<T>>.intersection(): Set<T> = reduceOrNull { acc, ts ->
+    acc.intersect(ts)
+} ?: emptySet()
+
+fun <T> Iterable<Set<T>>.union(): Set<T> = reduceOrNull { acc, ts ->
+    acc.union(ts)
+} ?: emptySet()
 
 fun main() {
     val rucksacks = readInput("Day03")
@@ -18,7 +26,7 @@ fun main() {
     println(
         rucksacks
             .map(String::toSet)
-            .chunked(3, ::intersection)
+            .chunked(3) { it.intersection() }
             .sumOf { it.single().priority }
     )
 }
