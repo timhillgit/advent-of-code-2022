@@ -5,13 +5,9 @@ operator fun <T : Comparable<T>> ClosedRange<T>.contains(other: ClosedRange<T>) 
     start <= other.start && endInclusive >= other.endInclusive
 
 fun main() {
-    val elfPairs = readInput("Day04")
-        .map { line ->
-            line.split(",").map {
-                val (start, end) = it.split("-").map(String::toInt)
-                start..end
-            }
-        }
+    val elfPairs = readInput("Day04").parseAllUInts().map { (a, b, c, d) ->
+        a..b to c..d
+    }
 
     println(
         elfPairs.count { (a, b) ->

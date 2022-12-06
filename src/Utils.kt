@@ -4,6 +4,7 @@ import java.security.MessageDigest
 
 val DOUBLE_PATTERN = Regex("""-?\d+\.\d*(e\d+)?""")
 val INT_PATTERN = Regex("""-?\d+""")
+val UINT_PATTERN = Regex("""\d+""")
 
 /**
  * Reads lines from the given input txt file.
@@ -20,18 +21,22 @@ fun String.md5() = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteA
 
 fun readDoubles(name: String) = readInput(name).map(String::toDoubleOrNull)
 
-fun readAllDoubles(name: String) = readInput(name)
-    .map { line ->
-        DOUBLE_PATTERN.findAll(line)
-            .map { match -> match.value.toDouble() }
-            .toList()
-    }
+fun Iterable<String>.parseAllDoubles() = map { line ->
+    DOUBLE_PATTERN.findAll(line)
+        .map { match -> match.value.toDouble() }
+        .toList()
+}
 
 fun readInts(name: String) = readInput(name).map(String::toIntOrNull)
 
-fun readAllInts(name: String) = readInput(name)
-    .map { line ->
-        INT_PATTERN.findAll(line)
-            .map { match -> match.value.toInt() }
-            .toList()
-    }
+fun Iterable<String>.parseAllInts() = map { line ->
+    INT_PATTERN.findAll(line)
+        .map { match -> match.value.toInt() }
+        .toList()
+}
+
+fun Iterable<String>.parseAllUInts() = map { line ->
+    UINT_PATTERN.findAll(line)
+        .map { match -> match.value.toUInt() }
+        .toList()
+}
