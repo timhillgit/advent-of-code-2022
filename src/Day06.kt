@@ -1,9 +1,11 @@
-import java.io.File
+fun <T> Iterable<T>.isDistinct() = all(mutableSetOf<T>()::add)
+
+private fun String.findSignal(size: Int) = asIterable()
+    .windowed(size)
+    .indexOfFirst(List<Char>::isDistinct) + size
 
 fun main() {
-    val text = File("src", "Day06.txt").readText()
-    var marker = text.windowed(4).find { it.toSet().size == 4 } ?: ""
-    println(text.indexOf(marker) + 4)
-    marker = text.windowed(14).find { it.toSet().size == 14 } ?: ""
-    println(text.indexOf(marker) + 14)
+    val text = readInputRaw("Day06")
+    println(text.findSignal(4))
+    println(text.findSignal(14))
 }

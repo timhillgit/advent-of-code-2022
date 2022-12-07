@@ -40,3 +40,5 @@ fun Iterable<String>.parseAllUInts() = map { line ->
         .map { match -> match.value.toUInt() }
         .toList()
 }
+
+fun readInputRaw(name: String) = File("src", "$name.txt").readText()
