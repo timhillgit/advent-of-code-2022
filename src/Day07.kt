@@ -1,20 +1,29 @@
 import kotlin.math.max
 
-private sealed interface ElfFile {
-    val size: Int
-}
+private sealed interface ElfFile
 
-private class ElfRegularFile(override val size: Int): ElfFile
+private data class ElfRegularFile(val size: Int): ElfFile
+
+private class ElfPath(segments: List<String>): List<String> by segments {
+    constructor(vararg segments: String) : this(segments.toList())
+
+    override fun toString() = joinToString(separator = SEPARATOR, prefix = SEPARATOR)
+
+    operator fun plus(other: ElfPath) = ElfPath(plus(other as List<String>))
+
+    companion object {
+        const val SEPARATOR = "/"
+    }
+}
 
 private class ElfDirectory(val parent: ElfDirectory? = null): ElfFile {
     val files = mutableMapOf<String, ElfFile>()
-    override val size get() = files.values.sumOf(ElfFile::size)
 
     private fun root(): ElfDirectory = parent?.root() ?: this
 
     fun cd(dir: String): ElfDirectory =
         when (dir) {
-            "/" -> root()
+            ElfPath.SEPARATOR -> root()
             ".." -> parent ?: this
             else -> files.getOrPut(dir) { ElfDirectory(this) } as ElfDirectory
         }
@@ -27,23 +36,31 @@ private class ElfDirectory(val parent: ElfDirectory? = null): ElfFile {
         }
     }
 
-    fun listAll(): List<ElfFile> = let { dir ->
-        buildList {
-            add(dir)
-            files.values.forEach { file ->
-                when (file) {
-                    is ElfRegularFile -> add(file)
-                    is ElfDirectory -> addAll(file.listAll())
+    /**
+     * Return a list of paths and the diskspace they're taking. The paths are from the perspective
+     * of the calling directory and the calling directory is always listed first.
+     */
+    fun du(): List<Pair<ElfPath, Int>> = buildList {
+        val totalSize = files.asIterable().sumOf { (name, file) ->
+            when (file) {
+                is ElfRegularFile -> file.size
+                is ElfDirectory -> {
+                    val children = file.du().map { (path, childSize) ->
+                        (ElfPath(name) + path) to childSize
+                    }
+                    addAll(children)
+                    children.first().second
                 }
             }
         }
+        add(0, ElfPath() to totalSize)
     }
 }
 
-private fun String.isCommand() = first() == '$'
+private fun List<String>.isCommand() = first() == "$"
 
 fun main() {
-    val instructions = readInput("Day07")
+    val instructions = readInput("Day07").map { it.split(" ") }
 
     val root = ElfDirectory()
     var pwd = root
@@ -51,11 +68,10 @@ fun main() {
     while (iter.hasNext()) {
         var instruction = iter.next()
         assert(instruction.isCommand())
-        var tokens = instruction.split(" ")
-        val command = tokens[1]
+        val command = instruction[1]
         when (command) {
             "cd" -> {
-                val dir = tokens[2]
+                val dir = instruction[2]
                 pwd = pwd.cd(dir)
             }
             "ls" -> {
@@ -65,19 +81,27 @@ fun main() {
                         iter.previous()
                         break
                     }
-                    tokens = instruction.split(" ")
-                    val fileInfo = tokens[0]
-                    val fileName = tokens[1]
+                    val fileInfo = instruction[0]
+                    val fileName = instruction[1]
                     pwd.putFile(fileName, fileInfo)
                 }
             }
         }
     }
 
-    println(root.listAll().filter { it is ElfDirectory && it.size <= 100000 }.sumOf { it.size })
+    val diskUsage = root.du()
+    println("Disk usage:")
+    diskUsage.forEach { (path, size) ->
+        println("$path: $size")
+    }
 
-    val usedSpace = root.size
+    val directorySizes = diskUsage
+        .map { it.second }
+        .sorted()
+
+    println(directorySizes.takeWhile { it <= 100000 }.sum())
+
+    val usedSpace = directorySizes.last()
     val spaceToFree = max(usedSpace - 40000000, 0)
-    val dirs = root.listAll().filterIsInstance<ElfDirectory>()
-    println(dirs.sortedBy(ElfDirectory::size).first { it.size >= spaceToFree }.size)
+    println(directorySizes.first { it >= spaceToFree })
 }
