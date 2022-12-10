@@ -47,7 +47,7 @@ class CPU {
             }
         }
 
-        return tape[20] + tape[60] + tape[100] + tape[140] + tape[180] + tape[220]
+        return tape.slice(20..220 step 40).sum()
     }
 
     companion object {
