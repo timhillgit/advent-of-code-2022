@@ -6,6 +6,7 @@ enum class Direction {
 }
 
 typealias Position = Pair<Int, Int>
+typealias Motion = Pair<Direction, Int>
 
 fun Position.move(direction: Direction): Position =
     when (direction) {
@@ -41,34 +42,36 @@ fun Position.chase(other: Position): Position =
         newPosition
     }
 
+class Rope(val size: Int) {
+    private val knots = MutableList(size) { origin }
+    fun head() = knots.first()
+    fun tail() = knots.last()
+
+    fun move(motions: Iterable<Motion>): Int {
+        val visitedPositons = mutableSetOf(tail())
+        motions.forEach { (direction, steps) ->
+            repeat(steps) {
+                knots[0] = head().move(direction) // Move head first
+                for (i in 1 until size) {
+                    knots[i] = knots[i].chase(knots[i - 1]) // Each knot chases the knot in front
+                }
+                visitedPositons.add(tail())
+            }
+        }
+        return visitedPositons.size
+    }
+
+    companion object {
+        val origin: Position = 0 to 0
+    }
+}
+
 fun main() {
-    val motions = readInput("Day09").map { line ->
+    val motions: List<Motion> = readInput("Day09").map { line ->
         val (direction, steps) = line.split(" ")
         Direction.valueOf(direction) to steps.toInt()
     }
 
-    var headPosition = 0 to 0
-    var tailPosition = 0 to 0
-    var visitedPositions = mutableSetOf(tailPosition)
-    motions.forEach { (direction, steps) ->
-        repeat(steps) {
-            headPosition = headPosition.move(direction)
-            tailPosition = tailPosition.chase(headPosition)
-            visitedPositions.add(tailPosition)
-        }
-    }
-    println(visitedPositions.size)
-
-    val knots = MutableList(10) { 0 to 0 }
-    visitedPositions = mutableSetOf(knots.last())
-    motions.forEach { (direction, steps) ->
-        repeat(steps) {
-            knots[0] = knots[0].move(direction)
-            for (i in 1 until knots.size) {
-                knots[i] = knots[i].chase(knots[i - 1])
-            }
-            visitedPositions.add(knots.last())
-        }
-    }
-    println(visitedPositions.size)
+    println(Rope(2).move(motions))
+    println(Rope(10).move(motions))
 }
