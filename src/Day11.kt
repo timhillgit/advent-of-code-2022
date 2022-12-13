@@ -19,6 +19,11 @@ fun <T: Comparable<T>> Iterable<T>.nLargest(n: Int): List<T> {
     return queue.toList()
 }
 
+tailrec fun gcd(a: Long, b: Long): Long = if (b == 0L) { a } else { gcd(b, a % b) }
+fun Iterable<Long>.gcd(): Long = reduceOrNull(::gcd) ?: 0
+fun lcm(a: Long, b: Long): Long = a / gcd(a, b) * b
+fun Iterable<Long>.lcm(): Long = reduceOrNull(::lcm) ?: 0
+
 fun Iterable<Long>.product() = fold(1L) { acc, elt -> acc * elt }
 
 fun <T> ArrayDeque<T>.exhaust(
