@@ -21,10 +21,8 @@ class PointRegion(firstCorner: Point, secondCorner: Point) : Collection<Point> {
     val last = Point(maxOf(firstCorner.x, secondCorner.x), maxOf(firstCorner.y, secondCorner.y))
     val xRange = first.x..last.x
     val yRange = first.y..last.y
-    val xSize = first.x - last.x
-    val ySize = first.y - last.y
 
-    override val size: Int = xSize * ySize
+    override val size: Int = xRange.count() * yRange.count()
 
     override fun isEmpty(): Boolean = size == 0
 
