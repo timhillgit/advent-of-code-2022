@@ -123,6 +123,6 @@ fun main() {
     val unavailable = unavailablePositions(sensors, 2000000)
     println(unavailable.size)
 
-    val distressBeacon = findBeacon(sensors, PointRegion(Point.ORIGIN, Point(4000000, 4000000)))
+    val distressBeacon = findBeacon(sensors, PointRegion(4000000, 4000000))
     println(distressBeacon?.tuningFrequency)
 }

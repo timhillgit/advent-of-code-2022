@@ -22,6 +22,8 @@ class PointRegion(firstCorner: Point, secondCorner: Point) : Collection<Point> {
     val xRange = first.x..last.x
     val yRange = first.y..last.y
 
+    constructor(width: Int, height: Int) : this(Point.ORIGIN, Point(width - 1, height - 1))
+
     override val size: Int = xRange.count() * yRange.count()
 
     override fun isEmpty(): Boolean = size == 0
@@ -53,7 +55,7 @@ class PointRegion(firstCorner: Point, secondCorner: Point) : Collection<Point> {
 
 open class Grid<T>(val xSize: Int, val ySize: Int, default: T): Iterable<T> {
     private val data = MutableList(xSize) { MutableList(ySize) { default } }
-    val points = PointRegion(Point.ORIGIN, Point(xSize - 1, ySize - 1))
+    val points = PointRegion(xSize, ySize)
     val size: Int = points.size
 
     fun forEachWithPoints(action: (point: Point, T) -> Unit) {
