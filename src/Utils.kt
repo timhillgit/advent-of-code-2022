@@ -42,3 +42,5 @@ fun Iterable<String>.parseAllUInts() = map { line ->
 }
 
 fun readInputRaw(name: String) = File("src", "$name.txt").readText()
+
+fun <K, V> Map<K, V>.invert() = entries.associateBy(Map.Entry<K, V>::value, Map.Entry<K, V>::key)
